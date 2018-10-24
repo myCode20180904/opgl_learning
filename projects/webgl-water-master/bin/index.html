@@ -1,0 +1,46 @@
+<!--
+WebGL Water
+http://madebyevan.com/webgl-water/
+
+Copyright 2011 Evan Wallace
+Released under the MIT license
+-->
+
+<!DOCTYPE html>
+<html><head>
+  <title>WebGL Water</title>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <script src="./customJs/OES_texture_float_linear-polyfill.js"></script>
+  <script src="./customJs/lightgl.js"></script>
+  <script src="./customJs/cubemap.js"></script>
+  <script src="./customJs/renderer.js"></script>
+  <script src="./customJs/water.js"></script>
+  <script src="./js/main.js"></script>
+  <style type="text/css">
+    body { font: 13px/140% Arial, sans-serif; background: black; color: white; overflow: hidden; }
+    a { color: inherit; cursor: pointer; }
+    img { display: none; }
+    ul { padding: 0 0 0 20px; }
+    h1 { font: bold italic 30px/30px Georgia; text-align: center; }
+    h2 { font: bold italic 17px/17px Georgia; padding-top: 10px; }
+    small { display: block; font-size: 11px; line-height: 15px; }
+    canvas { position: absolute; top: 0; left: 0; }
+    #help { position: absolute; top: 0; right: 0; bottom: 0; width: 280px; padding-right: 20px; overflow: auto; }
+    #loading { position: absolute; left: 0; top: 50%; right: 300px; text-align: center; margin-top: -8px; }
+    @media (max-width: 600px) {
+      small { font-size: 8px; line-height: 10px; }
+      #help { width: 100px; font-size: 10px; line-height: 12px; }
+    }
+  </style>
+</head><body>
+  <div id="loading">Loading...</div>
+  <div id="help">
+  </div>
+ 
+  <img id="tiles" src="./customJs/tiles.jpg">
+  <img id="xneg" src="./customJs/xneg.jpg">
+  <img id="xpos" src="./customJs/xpos.jpg">
+  <img id="ypos" src="./customJs/ypos.jpg">
+  <img id="zneg" src="./customJs/zneg.jpg">
+  <img id="zpos" src="./customJs/zpos.jpg">
+</body></html>

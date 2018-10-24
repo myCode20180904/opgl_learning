@@ -1,0 +1,14 @@
+{
+  "name": "learnwebgl",
+  "version": "1.0.0",
+  "description": "学习WebGL",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tscw":"tsc -w",
+    "web": "lite-server -c configs/http-config.json"
+  },
+  "author": "zohar",
+  "license": "ISC",
+  "dependencies": {}
+}

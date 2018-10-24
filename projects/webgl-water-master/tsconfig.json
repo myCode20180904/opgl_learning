@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        "noImplicitAny": false,
+        "sourceMap": false,
+        "outDir":"bin/js/"
+    },
+    "exclude": [
+        "node_modules",/* 忽略npm模块. */
+        "bin"/* 忽略bin目录. */
+    ]
+}
