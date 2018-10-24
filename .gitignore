@@ -33,3 +33,11 @@
 
 # .vscode
 .vscode/
+
+#vs2017
+*.tlog/
+*.obj
+*.pdb
+*.pch
+*.log
+
