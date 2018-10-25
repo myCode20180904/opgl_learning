@@ -96,3 +96,13 @@ tsc -v
 ## 升级vscode内置TS版本： typescript.tsdk
 
 ## Canvas之2D绘图篇
+
+## [glMatrix引用](http://glmatrix.net/docs/index.html)
+- JS代码转换d.ts
+```
+npm i dtsmake -g
+npm i tern --save-dev
+dtsmake -s fileame.js
+
+
+```

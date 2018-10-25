@@ -5,7 +5,7 @@ namespace LESSONS{
      * created 装饰器
      * @param val 
      */
-    function created(val: any):any{
+    export function created(val: any):any{
         if (val == null)
         {
             return;
@@ -185,7 +185,7 @@ namespace LESSONS{
             delete this.listeners[target.constructor.name];
         }
     }
-    var _listenerFrame = new listenerFrame();
+    export var _listenerFrame = new listenerFrame();
 
 
     /**
@@ -193,7 +193,7 @@ namespace LESSONS{
      * 获取canvas
      * @returns canvas:HTMLCanvasElement|any
      */
-    var getCanvas = function(name):HTMLCanvasElement|any{
+    export var getCanvas = function(name):HTMLCanvasElement|any{
         var canvas:HTMLCanvasElement = <HTMLCanvasElement>document.getElementById(name);
         if(!canvas){
             console.log("错误：无法获取到 Canvas 元素！");
@@ -208,7 +208,7 @@ namespace LESSONS{
      * @param canvas 
      * @returns webgl:WebGLRenderingContext
      */
-    var create3DContext = function(canvas: HTMLCanvasElement): WebGLRenderingContext | any {
+    export var create3DContext = function(canvas: HTMLCanvasElement): WebGLRenderingContext | any {
         var names: string[] = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
         for (var i = 0; i < names.length; i++) {
             try {
@@ -291,15 +291,20 @@ namespace LESSONS{
             webgl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
             //顶点着色器
             var vertexShaderSource: string = `
+
             attribute vec4 a_Position;
+
+            uniform mat4 u_MVPMatrix;
+
             void main()
             {
-                gl_Position = vec4(a_Position.x, a_Position.y, a_Position.z, 1.0);
+                gl_Position = vec4(a_Position.x*1.0, a_Position.y, a_Position.z, 1.0);
             }
             `;
 
             //片段着色器
             var fragmentShaderSource: string = `
+
             precision mediump float;
             
             uniform vec4 ourColor;
@@ -322,7 +327,7 @@ namespace LESSONS{
             if (!webgl.getShaderParameter(vertexShader, webgl.COMPILE_STATUS)) {
                 var log: string | null = webgl.getShaderInfoLog(vertexShader);
                 webgl.deleteShader(vertexShader);
-                console.log("错误：编译vertex顶点着色器发生错误：" + log);
+                console.error("错误：编译vertex顶点着色器发生错误：" + log);
                 return;
             }
 
@@ -334,7 +339,7 @@ namespace LESSONS{
             if (!webgl.getShaderParameter(fragmentShader, webgl.COMPILE_STATUS)) {
                 var log: string | null = webgl.getShaderInfoLog(fragmentShader);
                 webgl.deleteShader(fragmentShader);
-                console.log("错误：编译fragment片段着色器发生错误：" + log);
+                console.error("错误：编译fragment片段着色器发生错误：" + log);
                 return;
             }
 
@@ -347,7 +352,7 @@ namespace LESSONS{
             // 检查链接时，是否发生错误
             if (!webgl.getProgramParameter(shaderProgram, webgl.LINK_STATUS)) {
                 var log: string | null = webgl.getProgramInfoLog(shaderProgram);
-                console.log("错误：链接到着色器时发生错误：" + log);
+                console.error("错误：链接到着色器时发生错误：" + log);
                 return;
             }
             //链接完成后可以释放源
@@ -368,7 +373,7 @@ namespace LESSONS{
             webgl.bufferData(webgl.ARRAY_BUFFER, new Float32Array(vertices), webgl.STATIC_DRAW);//填充数据
 
             //给指定的着色器变量a_Position赋值
-            var a_Position = webgl.getAttribLocation(shaderProgram, 'a_Position');//获取地址
+            var a_Position:GLint = webgl.getAttribLocation(shaderProgram, 'a_Position');//获取地址
             //参数：着色器中的位置，顶点大小，数据类型，是否标准化，步长，偏移量
             webgl.vertexAttribPointer(a_Position, 3, webgl.FLOAT, false, 0, 0);
             webgl.enableVertexAttribArray(a_Position);//激活
@@ -387,6 +392,18 @@ namespace LESSONS{
                 webgl.bindBuffer(webgl.ARRAY_BUFFER, VBO);
 
                 {
+                    var vertexColorLocation: WebGLUniformLocation | null = webgl.getUniformLocation(shaderProgram, "u_MVPMatrix");
+                    //模型model 视图view 投影proj
+                    webgl.uniformMatrix4fv(vertexColorLocation, false,[
+                        0.1,0.1,0.1,0.1,
+                        0.1,0.1,0.1,0.1,
+                        0.1,0.1,0.1,0.1,
+                        0.1,0.1,0.1,0.1
+                    ]);
+                }
+                
+
+                {
                     var vertexColorLocation: WebGLUniformLocation | null = webgl.getUniformLocation(shaderProgram, "ourColor");
                     webgl.uniform4f(vertexColorLocation, 0.0, 0.0, 1.0, 1.0);
                 }
@@ -395,6 +412,7 @@ namespace LESSONS{
                 
                 webgl.drawArrays(webgl.TRIANGLES, 0, 3);
                 //渲染结束
+                
 
             } 
             draw();
@@ -415,7 +433,7 @@ namespace LESSONS{
 
             //不停的更新着色器颜色
             var greenValue: number = Math.sin(this.timer/500) / 2.0 + 0.5;
-            var blueValue: number = Math.sin(this.timer/500) / 2.0 + 0.5;
+            var blueValue: number = Math.sin(this.timer/1000) / 2.0 + 0.5;
             //获取像素着色器中ourColor变量的位置
             var vertexColorLocation: WebGLUniformLocation | null = this.webgl.getUniformLocation(this.shaderProgram, "ourColor");
             //给ourColor赋值变化的颜色
@@ -423,7 +441,7 @@ namespace LESSONS{
             // 画出三角形
  
             this.webgl.drawArrays(this.webgl.TRIANGLES, 0, 3);
-           
+            this.webgl.flush();
         }
 
     }

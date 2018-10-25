@@ -17,6 +17,7 @@ var LESSONS;
         }
         console.info("创建课程：", val);
     }
+    LESSONS.created = created;
     /**
      * learn 监听装饰器
      * @param val
@@ -178,13 +179,13 @@ var LESSONS;
         };
         return listenerFrame;
     }());
-    var _listenerFrame = new listenerFrame();
+    LESSONS._listenerFrame = new listenerFrame();
     /**
      * getCanvas
      * 获取canvas
      * @returns canvas:HTMLCanvasElement|any
      */
-    var getCanvas = function (name) {
+    LESSONS.getCanvas = function (name) {
         var canvas = document.getElementById(name);
         if (!canvas) {
             console.log("错误：无法获取到 Canvas 元素！");
@@ -198,7 +199,7 @@ var LESSONS;
      * @param canvas
      * @returns webgl:WebGLRenderingContext
      */
-    var create3DContext = function (canvas) {
+    LESSONS.create3DContext = function (canvas) {
         var names = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
         for (var i = 0; i < names.length; i++) {
             try {
@@ -218,7 +219,7 @@ var LESSONS;
         function lesson1() {
             LESSONS._watcher.name = "第一课 Canvas";
             //通过元素id来获取对象
-            var canvas = getCanvas("my-canvas-2d");
+            var canvas = LESSONS.getCanvas("my-canvas-2d");
             if (!canvas) {
                 console.log("错误：无法获取到 Canvas 元素！");
                 return;
@@ -240,7 +241,7 @@ var LESSONS;
         function lesson2() {
             LESSONS._watcher.name = "第二课 webgl";
             //获取WebGL的绘图上下文
-            var webgl = create3DContext(getCanvas("my-canvas-3d"));
+            var webgl = LESSONS.create3DContext(LESSONS.getCanvas("my-canvas-3d"));
             if (webgl == null) {
                 console.log("错误：无法获取到 WebGL 上下文！");
                 return;
@@ -260,9 +261,9 @@ var LESSONS;
         function lesson3() {
             this.timer = 0;
             LESSONS._watcher.name = "第三课 Triangles";
-            var canvas = getCanvas("my-canvas-3d");
+            var canvas = LESSONS.getCanvas("my-canvas-3d");
             //获取WebGL的绘图上下文
-            var webgl = create3DContext(canvas);
+            var webgl = LESSONS.create3DContext(canvas);
             if (webgl == null) {
                 console.log("错误：无法获取到 WebGL 上下文！");
                 return;
@@ -271,9 +272,9 @@ var LESSONS;
             //设置WebGL渲染区域尺寸
             webgl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
             //顶点着色器
-            var vertexShaderSource = "\n            attribute vec4 a_Position;\n            void main()\n            {\n                gl_Position = vec4(a_Position.x, a_Position.y, a_Position.z, 1.0);\n            }\n            ";
+            var vertexShaderSource = "\n\n            attribute vec4 a_Position;\n\n            uniform mat4 u_MVPMatrix;\n\n            void main()\n            {\n                gl_Position = vec4(a_Position.x*1.0, a_Position.y, a_Position.z, 1.0);\n            }\n            ";
             //片段着色器
-            var fragmentShaderSource = "\n            precision mediump float;\n            \n            uniform vec4 ourColor;\n            \n            void main()\n            {\n                gl_FragColor = ourColor;\n            }\n            ";
+            var fragmentShaderSource = "\n\n            precision mediump float;\n            \n            uniform vec4 ourColor;\n            \n            void main()\n            {\n                gl_FragColor = ourColor;\n            }\n            ";
             // 生成并编译顶点着色器和片段着色器
             // =========================================================================
             // 首先是创建和编译顶点着色器
@@ -284,7 +285,7 @@ var LESSONS;
             if (!webgl.getShaderParameter(vertexShader, webgl.COMPILE_STATUS)) {
                 var log = webgl.getShaderInfoLog(vertexShader);
                 webgl.deleteShader(vertexShader);
-                console.log("错误：编译vertex顶点着色器发生错误：" + log);
+                console.error("错误：编译vertex顶点着色器发生错误：" + log);
                 return;
             }
             // 片段着色器
@@ -295,7 +296,7 @@ var LESSONS;
             if (!webgl.getShaderParameter(fragmentShader, webgl.COMPILE_STATUS)) {
                 var log = webgl.getShaderInfoLog(fragmentShader);
                 webgl.deleteShader(fragmentShader);
-                console.log("错误：编译fragment片段着色器发生错误：" + log);
+                console.error("错误：编译fragment片段着色器发生错误：" + log);
                 return;
             }
             // 链接到着色器
@@ -307,7 +308,7 @@ var LESSONS;
             // 检查链接时，是否发生错误
             if (!webgl.getProgramParameter(shaderProgram, webgl.LINK_STATUS)) {
                 var log = webgl.getProgramInfoLog(shaderProgram);
-                console.log("错误：链接到着色器时发生错误：" + log);
+                console.error("错误：链接到着色器时发生错误：" + log);
                 return;
             }
             //链接完成后可以释放源
@@ -340,6 +341,16 @@ var LESSONS;
                 webgl.useProgram(shaderProgram);
                 webgl.bindBuffer(webgl.ARRAY_BUFFER, VBO);
                 {
+                    var vertexColorLocation = webgl.getUniformLocation(shaderProgram, "u_MVPMatrix");
+                    //模型model 视图view 投影proj
+                    webgl.uniformMatrix4fv(vertexColorLocation, false, [
+                        0.1, 0.1, 0.1, 0.1,
+                        0.1, 0.1, 0.1, 0.1,
+                        0.1, 0.1, 0.1, 0.1,
+                        0.1, 0.1, 0.1, 0.1
+                    ]);
+                }
+                {
                     var vertexColorLocation = webgl.getUniformLocation(shaderProgram, "ourColor");
                     webgl.uniform4f(vertexColorLocation, 0.0, 0.0, 1.0, 1.0);
                 }
@@ -347,7 +358,7 @@ var LESSONS;
                 //渲染结束
             };
             draw();
-            _listenerFrame.addListener(this, this.updateFarme, 50);
+            LESSONS._listenerFrame.addListener(this, this.updateFarme, 50);
         }
         lesson3.prototype.updateFarme = function (dt) {
             this.timer += dt;
@@ -356,13 +367,14 @@ var LESSONS;
             this.webgl.clear(this.webgl.COLOR_BUFFER_BIT);
             //不停的更新着色器颜色
             var greenValue = Math.sin(this.timer / 500) / 2.0 + 0.5;
-            var blueValue = Math.sin(this.timer / 500) / 2.0 + 0.5;
+            var blueValue = Math.sin(this.timer / 1000) / 2.0 + 0.5;
             //获取像素着色器中ourColor变量的位置
             var vertexColorLocation = this.webgl.getUniformLocation(this.shaderProgram, "ourColor");
             //给ourColor赋值变化的颜色
             this.webgl.uniform4f(vertexColorLocation, 0.0, greenValue, blueValue, 1.0);
             // 画出三角形
             this.webgl.drawArrays(this.webgl.TRIANGLES, 0, 3);
+            this.webgl.flush();
         };
         return lesson3;
     }());
@@ -374,7 +386,7 @@ var LESSONS;
         function lesson4() {
             this.count = 0;
             LESSONS._watcher.name = "第四课 逐帧的监听处理";
-            _listenerFrame.addListener(this, this.updateFarme);
+            LESSONS._listenerFrame.addListener(this, this.updateFarme);
             // _listenerFrame.addListener(this,this.updateFarme2);
             // _listenerFrame.removeAllListener(this);
             // _listenerFrame.removeListener(this,this.updateFarme2);
@@ -383,7 +395,7 @@ var LESSONS;
             console.info(this.count);
             this.count++;
             if (this.count >= 60) {
-                _listenerFrame.removeListener(this, this.updateFarme);
+                LESSONS._listenerFrame.removeListener(this, this.updateFarme);
             }
         };
         lesson4.prototype.updateFarme2 = function (dt) {
