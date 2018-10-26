@@ -2,7 +2,7 @@
 var LESSONS;
 (function (LESSONS) {
     /**
-     * 第五课
+     * 第五课  初识Shader
      */
     var lesson5 = (function () {
         function lesson5() {
@@ -11,8 +11,7 @@ var LESSONS;
             this.projMatrix = new Matrix4(0); // 投影矩阵
             this.mvpMatrix = new Matrix4(0); // 用于相乘用
             this.angle = 0;
-            LESSONS._watcher.name = "第五课";
-            console.info("lesson5");
+            LESSONS._watcher.name = "第五课 初识Shader";
             /**
              * 1.获取WebGL的绘图上下文 canvas，webgl 初始配置
              * 2.Shader 顶点着色器，片段着色器 。链接到着色器WebGLProgram
@@ -147,7 +146,10 @@ var LESSONS;
             this.modelMatrix.setRotate((this.angle++) % 360, 0, 1, 0);
             this.modelMatrix.translate(1, 0, 1);
             // (视点，观察目标点，上方向)
-            this.viewMatrix.setLookAt(0, 0, 10, 0, 0, 0, 1, 1, 0);
+            this.viewMatrix.setLookAt(0, 0, 10, //摄像机坐标
+            0, 0, 0, //目标坐标
+            1, 1, 0 //UP角度
+            );
             // 投影矩阵(fov可视空间底面和顶面夹角<大于0>,近裁截面宽高比,近裁截面位置<大于0>,远裁截面位置<大于0> )
             this.projMatrix.setPerspective(30, this.canvas.width / this.canvas.height, 1, 100);
             // 矩阵相乘
