@@ -260,6 +260,10 @@ var LESSONS;
     var lesson3 = (function () {
         function lesson3() {
             this.timer = 0;
+            this.width = 200;
+            this.height = 200;
+            this.x = 0;
+            this.y = 0;
             LESSONS._watcher.name = "第三课 Triangles";
             var canvas = LESSONS.getCanvas("my-canvas-3d");
             //获取WebGL的绘图上下文
@@ -270,7 +274,14 @@ var LESSONS;
             }
             this.webgl = webgl;
             //设置WebGL渲染区域尺寸
-            webgl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
+            this.viewSize = canvas.clientWidth > canvas.clientHeight ? canvas.clientWidth : canvas.clientHeight;
+            var offset = Math.abs(canvas.clientWidth - canvas.clientHeight) / 2;
+            if (canvas.clientWidth > canvas.clientHeight) {
+                webgl.viewport(0, offset, this.viewSize, this.viewSize);
+            }
+            else {
+                webgl.viewport(-offset, 0, this.viewSize, this.viewSize);
+            }
             //顶点着色器
             var vertexShaderSource = "\n\n            attribute vec4 a_Position;\n\n            uniform mat4 u_MVPMatrix;\n\n            void main()\n            {\n                gl_Position = vec4(a_Position.x*1.0, a_Position.y, a_Position.z, 1.0);\n            }\n            ";
             //片段着色器
@@ -315,16 +326,24 @@ var LESSONS;
             webgl.deleteShader(vertexShader);
             webgl.deleteShader(fragmentShader);
             // 创建一个三角形的顶点数据
+            /**
+             * (-1, 1)  (0, 1)   (1, 1)
+             * (-1, 0)  (0, 0)   (1, 0)
+             * (-1,-1)  (0,-1)   (1,-1)
+             *
+             */
             // =========================================================================
-            var vertices = [
-                -0.5, -0.5, 0.0,
-                0.5, -0.5, 0.0,
-                0.0, 0.5, -0.5 // top
-            ];
+            var vertices = new Float32Array([
+                0, 0, 0.0,
+                this.width / this.viewSize, -this.height / this.viewSize, 0.0,
+                this.width / this.viewSize, this.height / this.viewSize, 0.0 // top
+            ]);
+            var FSIZE = vertices.BYTES_PER_ELEMENT;
+            console.info(vertices);
             // 创建并绑定一个VBO对象
             var VBO = webgl.createBuffer(); //创建一个VBO顶点Buffer
             webgl.bindBuffer(webgl.ARRAY_BUFFER, VBO); //绑定
-            webgl.bufferData(webgl.ARRAY_BUFFER, new Float32Array(vertices), webgl.STATIC_DRAW); //填充数据
+            webgl.bufferData(webgl.ARRAY_BUFFER, vertices, webgl.STATIC_DRAW); //填充数据
             //给指定的着色器变量a_Position赋值
             var a_Position = webgl.getAttribLocation(shaderProgram, 'a_Position'); //获取地址
             //参数：着色器中的位置，顶点大小，数据类型，是否标准化，步长，偏移量
@@ -358,6 +377,7 @@ var LESSONS;
                 //渲染结束
             };
             draw();
+            this.fangkuai(webgl);
             LESSONS._listenerFrame.addListener(this, this.updateFarme, 50);
         }
         lesson3.prototype.updateFarme = function (dt) {
@@ -375,6 +395,92 @@ var LESSONS;
             // 画出三角形
             this.webgl.drawArrays(this.webgl.TRIANGLES, 0, 3);
             this.webgl.flush();
+        };
+        lesson3.prototype.fangkuai = function (webgl) {
+            //顶点着色器
+            var vertexShaderSource = "\n\n            attribute vec4 a_Position;\n\n            void main()\n            {\n                gl_Position = vec4(a_Position.x, a_Position.y, a_Position.z, 1.0);\n            }\n            ";
+            //片段着色器
+            var fragmentShaderSource = "\n\n            precision mediump float;\n            \n            uniform vec4 ourColor;\n            \n            void main()\n            {\n                gl_FragColor = ourColor;\n            }\n            ";
+            // 生成并编译顶点着色器和片段着色器
+            // =========================================================================
+            // 首先是创建和编译顶点着色器
+            var vertexShader = webgl.createShader(webgl.VERTEX_SHADER);
+            webgl.shaderSource(vertexShader, vertexShaderSource);
+            webgl.compileShader(vertexShader); //编译
+            // 检查着色器代码是否发生编译错误
+            if (!webgl.getShaderParameter(vertexShader, webgl.COMPILE_STATUS)) {
+                var log = webgl.getShaderInfoLog(vertexShader);
+                webgl.deleteShader(vertexShader);
+                console.error("错误：编译vertex顶点着色器发生错误：" + log);
+                return;
+            }
+            // 片段着色器
+            var fragmentShader = webgl.createShader(webgl.FRAGMENT_SHADER);
+            webgl.shaderSource(fragmentShader, fragmentShaderSource);
+            webgl.compileShader(fragmentShader); //编译
+            // 检查着色器代码是否发生编译错误
+            if (!webgl.getShaderParameter(fragmentShader, webgl.COMPILE_STATUS)) {
+                var log = webgl.getShaderInfoLog(fragmentShader);
+                webgl.deleteShader(fragmentShader);
+                console.error("错误：编译fragment片段着色器发生错误：" + log);
+                return;
+            }
+            // 链接到着色器
+            webgl.attachShader(this.shaderProgram, vertexShader); //导入顶点着色器
+            webgl.attachShader(this.shaderProgram, fragmentShader); //导入片断着色器
+            webgl.linkProgram(this.shaderProgram); //链接到着色器
+            // 检查链接时，是否发生错误
+            if (!webgl.getProgramParameter(this.shaderProgram, webgl.LINK_STATUS)) {
+                var log = webgl.getProgramInfoLog(this.shaderProgram);
+                console.error("错误：链接到着色器时发生错误：" + log);
+                return;
+            }
+            //链接完成后可以释放源
+            webgl.deleteShader(vertexShader);
+            webgl.deleteShader(fragmentShader);
+            // 创建一个三角形的顶点数据
+            /**
+             * (-1, 1)  (0, 1)   (1, 1)
+             * (-1, 0)  (0, 0)   (1, 0)
+             * (-1,-1)  (0,-1)   (1,-1)
+             *
+             */
+            // =========================================================================
+            var vertices = new Float32Array([
+                0, 0, 0.0,
+                0, this.height / this.viewSize, 0.0,
+                this.width / this.viewSize, this.height / this.viewSize, 0.0 // top
+            ]);
+            var FSIZE = vertices.BYTES_PER_ELEMENT;
+            console.info(vertices);
+            // 创建并绑定一个VBO对象
+            var VBO = webgl.createBuffer(); //创建一个VBO顶点Buffer
+            webgl.bindBuffer(webgl.ARRAY_BUFFER, VBO); //绑定
+            webgl.bufferData(webgl.ARRAY_BUFFER, vertices, webgl.STATIC_DRAW); //填充数据
+            //给指定的着色器变量a_Position赋值
+            var a_Position = webgl.getAttribLocation(this.shaderProgram, 'a_Position'); //获取地址
+            //参数：着色器中的位置，顶点大小，数据类型，是否标准化，步长，偏移量
+            webgl.vertexAttribPointer(a_Position, 3, webgl.FLOAT, false, 0, 0);
+            webgl.enableVertexAttribArray(a_Position); //激活
+            var self = this;
+            var draw = function () {
+                //开始渲染
+                // =========================================================================
+                //清空指定<canvas>的颜色
+                // webgl.clearColor(1.0, 1.0, 1.0, 1.0);
+                //清空<canvas>
+                // webgl.clear(webgl.COLOR_BUFFER_BIT);
+                // 画出三角形
+                // webgl.useProgram(shaderProgram);
+                webgl.bindBuffer(webgl.ARRAY_BUFFER, VBO);
+                {
+                    var vertexColorLocation = webgl.getUniformLocation(self.shaderProgram, "ourColor");
+                    webgl.uniform4f(vertexColorLocation, 0.0, 0.0, 1.0, 1.0);
+                }
+                webgl.drawArrays(webgl.TRIANGLES, 0, 3);
+                //渲染结束
+            };
+            draw();
         };
         return lesson3;
     }());
