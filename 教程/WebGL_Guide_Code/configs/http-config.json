@@ -1,0 +1,6 @@
+{
+    "port":8000,
+    "files":[""],
+    "startPath":"./bin/index.html",
+    "server":{"baseDir":"./"}
+}

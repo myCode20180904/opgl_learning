@@ -58,12 +58,12 @@ namespace LESSONS{
         initShader(webgl:WebGLRenderingContext){
             //顶点着色器
             var vertexShaderSource: string = `
-
             attribute vec4 a_Position; //顶点
             attribute vec2 a_TexCoord;//纹理坐标
             varying vec2 v_TexCoord;//插值后纹理坐标
             void main() { 
                 gl_Position = a_Position;//逐顶点处理
+                gl_PointSize = 10.0;
                 v_TexCoord = a_TexCoord;//纹理坐标插值计算
             } 
 
@@ -75,9 +75,38 @@ namespace LESSONS{
             precision mediump float; // 精度限定-所有float类型数据的精度是lowp
             uniform sampler2D u_Sampler;//纹理图片像素数据
             varying vec2 v_TexCoord;//接收插值后的纹理坐标
+            uniform vec4 color;
+            uniform float num;
             void main() {
                 //采集纹素，逐片元赋值像素值
-                gl_FragColor = texture2D(u_Sampler,v_TexCoord);
+                // gl_FragColor = texture2D(u_Sampler,v_TexCoord);
+
+                // vec4 sum = vec4(0.0);
+                // vec2 size = vec2(0.02,0.02);
+                // sum += texture2D(u_Sampler, v_TexCoord - 0.4 * size) * 0.05;
+                // sum += texture2D(u_Sampler, v_TexCoord - 0.3 * size) * 0.09;
+                // sum += texture2D(u_Sampler, v_TexCoord - 0.2 * size) * 0.12;
+                // sum += texture2D(u_Sampler, v_TexCoord - 0.1 * size) * 0.15;
+                // sum += texture2D(u_Sampler, v_TexCoord             ) * 0.16;
+                // sum += texture2D(u_Sampler, v_TexCoord + 0.1 * size) * 0.15;
+                // sum += texture2D(u_Sampler, v_TexCoord + 0.2 * size) * 0.12;
+                // sum += texture2D(u_Sampler, v_TexCoord + 0.3 * size) * 0.09;
+                // sum += texture2D(u_Sampler, v_TexCoord + 0.4 * size) * 0.05;
+                
+                // vec4 vectemp = vec4(0,0,0,0);
+                // vec4 substract = vec4(0,0,0,0);
+                // vectemp = (sum - substract);
+
+                // float alpha = texture2D(u_Sampler, v_TexCoord).a;
+                // if(alpha < 0.05) { gl_FragColor = vec4(0 , 0 , 0 , 0); }
+                // else { gl_FragColor = vectemp; }
+
+                vec4 src_color = texture2D(u_Sampler,v_TexCoord).rgba;
+                if(src_color.r>=0.99&&src_color.g>=0.99&&src_color.b>=0.99){
+                    src_color.a=0.0;
+                }
+                float gray = dot(src_color.rgb, vec3(0.8, 0.9, 0.85));
+                gl_FragColor = vec4(src_color.r+0.08, src_color.g+0.08, src_color.b+0.08, src_color.a+0.015);
             }
 
             `;
@@ -248,7 +277,7 @@ namespace LESSONS{
             webgl.uniform1i(u_Sampler,0);
 
             //绘制
-            webgl.clearColor(1.0,1.0,1.0,1.0);
+            webgl.clearColor(0.5,0.5,0.5,1.0);
             webgl.clear(webgl.COLOR_BUFFER_BIT);
             webgl.drawArrays(webgl.TRIANGLE_STRIP,0,n);
 

@@ -166,12 +166,12 @@ var LESSONS;
             // (基本图形，第几个顶点，执行几次)，修改基本图形项可以生成点，线，三角形，矩形，扇形等
             this.m_webgl.drawArrays(this.m_webgl.TRIANGLES, 0, 9);
             //位移后，再将前面3个三角形重新绘制
-            this.modelMatrix.translate(-1, 0, 0);
-            this.mvpMatrix.set(this.projMatrix);
-            this.mvpMatrix.multiply(this.viewMatrix);
-            this.mvpMatrix.multiply(this.modelMatrix);
-            _mvpMatrix = this.mvpMatrix.elements;
-            this.m_webgl.uniformMatrix4fv(u_MvpMatrix, false, (_mvpMatrix));
+            // this.modelMatrix.translate(-1, 0, 0);
+            // this.mvpMatrix.set(this.projMatrix);
+            // this.mvpMatrix.multiply(this.viewMatrix);
+            // this.mvpMatrix.multiply(this.modelMatrix);
+            // _mvpMatrix = this.mvpMatrix.elements;
+            // this.m_webgl.uniformMatrix4fv(u_MvpMatrix, false, <Float32Array>(_mvpMatrix));
             //设置偏移量
             this.m_webgl.polygonOffset(1.0, 1.0);
             this.m_webgl.drawArrays(this.m_webgl.TRIANGLES, 0, 9);
